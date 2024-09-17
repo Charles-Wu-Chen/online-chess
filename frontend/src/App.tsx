@@ -1,17 +1,22 @@
 import React from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import ChessGame from './Chessboard';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Chessboard from './Chessboard';
+import RandomMoveChessboard from './RandomMoveChessboard';
+import Navigation from './Navigation';
 
-const App: React.FC = () => {
+function App() {
   return (
-    <DndProvider backend={HTML5Backend}>
+    <Router>
       <div className="App">
-        <h1>Chess Game</h1>
-        <ChessGame />
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<Chessboard />} />
+          <Route path="/default" element={<Chessboard />} />
+          <Route path="/random-move" element={<RandomMoveChessboard />} />
+        </Routes>
       </div>
-    </DndProvider>
+    </Router>
   );
-};
+}
 
 export default App;

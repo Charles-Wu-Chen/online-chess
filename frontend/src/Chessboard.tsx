@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Chess } from 'chess.js';
-import { Chessboard } from 'react-chessboard';
+import { Chessboard as ReactChessboard } from 'react-chessboard';
 
 const ChessGame: React.FC = () => {
   const [game, setGame] = useState<Chess>(new Chess());
@@ -57,12 +57,12 @@ const ChessGame: React.FC = () => {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
       alignItems: 'center',
-      height: '100vh',
+      padding: '2rem',
     }}>
+      <h2>Default Chessboard</h2>
       <div ref={boardContainerRef} style={{ width: '400px', maxWidth: '100%' }}>
-        <Chessboard 
+        <ReactChessboard 
           position={game.fen()} 
           onPieceDrop={onDrop} 
           boardWidth={boardWidth}
