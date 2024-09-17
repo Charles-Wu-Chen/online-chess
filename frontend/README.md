@@ -21,7 +21,7 @@ This is the frontend project for the online chess application, using React and r
 
 3. Install chess-specific dependencies:
    ```bash
-   npm install react-chessboard chess.js react-dnd react-dnd-html5-backend
+   npm install react-chessboard chess.js react-dnd react-dnd-html5-backend react-scripts@latest
    ```
 
 ## Running the Development Server
