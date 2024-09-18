@@ -21,19 +21,19 @@ const RandomMoveChessboard: React.FC = () => {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  function makeRandomMove() {
-    const possibleMoves = game.moves();
+  function makeRandomMove(currentGame: Chess) {
+    const possibleMoves = currentGame.moves();
 
     // Exit if the game is over
-    if (game.isGameOver() || game.isDraw() || possibleMoves.length === 0) {
-      setMessage(game.isCheckmate() ? 'Checkmate!' : 'Game Over!');
+    if (currentGame.isGameOver() || currentGame.isDraw() || possibleMoves.length === 0) {
+      setMessage(currentGame.isCheckmate() ? 'Checkmate!' : 'Game Over!');
       return;
     }
 
     const randomIndex = Math.floor(Math.random() * possibleMoves.length);
     const randomMove = possibleMoves[randomIndex];
     
-    const gameCopy = new Chess(game.fen());
+    const gameCopy = new Chess(currentGame.fen());
     gameCopy.move(randomMove);
     setGame(gameCopy);
 
@@ -48,32 +48,38 @@ const RandomMoveChessboard: React.FC = () => {
   }
 
   function onDrop(sourceSquare: string, targetSquare: string) {
-    const gameCopy = new Chess(game.fen());
-    const move = gameCopy.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: 'q', // always promote to queen for simplicity
-    });
+    try {
+      const gameCopy = new Chess(game.fen());
+      const move = gameCopy.move({
+        from: sourceSquare,
+        to: targetSquare,
+        promotion: 'q', // always promote to queen for simplicity
+      });
 
-    // Illegal move
-    if (move === null) {
+      // If move is null, it's an invalid move
+      if (move === null) {
+        setMessage('Invalid move');
+        return false;
+      }
+
+      setGame(gameCopy);
+
+      // Check for game end conditions after player's move
+      if (gameCopy.isCheckmate()) {
+        setMessage('Checkmate!');
+      } else if (gameCopy.isDraw()) {
+        setMessage('Draw!');
+      } else {
+        // Make a random move for the computer using the updated game state
+        setTimeout(() => makeRandomMove(gameCopy), 300);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in onDrop:', error);
       setMessage('Invalid move');
       return false;
     }
-
-    setGame(gameCopy);
-
-    // Check for checkmate after player's move
-    if (gameCopy.isCheckmate()) {
-      setMessage('Checkmate!');
-    } else if (gameCopy.isDraw()) {
-      setMessage('Draw!');
-    } else {
-      // Make a random move for the computer
-      setTimeout(makeRandomMove, 300);
-    }
-
-    return true;
   }
 
   function resetGame() {
