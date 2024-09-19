@@ -162,3 +162,8 @@ cython_debug/
 #.idea/
 
 frontend/node_modules
+
+backend/.conda
+backend/.venv
+
+.npmrc

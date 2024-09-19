@@ -51,12 +51,12 @@ This project is a Flask-based API that uses the Stockfish chess engine to analyz
 
 1. Ensure you're in the project directory and your Conda environment is activated:
    ```bash
-   conda activate chess-api
+   conda activate online-chess-backend
    ```
 
 2. Start the Flask development server:
    ```bash
-   python backend/main.py
+   python main.py
    ```
 
 3. The server should now be running on `http://127.0.0.1:5000/`
@@ -91,9 +91,10 @@ This project is a Flask-based API that uses the Stockfish chess engine to analyz
 - Response:
   ```json
   {
-    "evaluation": 10
+    "message": "Evaluation request received"
   }
   ```
+- Status Code: 202 (Accepted)
 - Curl command:
   ```bash
   curl -X POST http://127.0.0.1:5000/evaluate \
@@ -101,15 +102,30 @@ This project is a Flask-based API that uses the Stockfish chess engine to analyz
        -d '{"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "depth": 20}'
   ```
 
-  
-### Note on using curl in WSL
+### Get Evaluation Result
 
-When using curl in Windows Subsystem for Linux (WSL) to interact with the API running on your Windows host, use the following format:
-in wsl curl command:
+- Endpoint: `/evaluation-result`
+- Method: GET
+- Response:
+  - If evaluation is complete:
+    ```json
+    {
+      "status": "completed",
+      "evaluation": 10
+    }
+    ```
+  - If evaluation is still in progress:
+    ```json
+    {
+      "status": "in_progress"
+    }
+    ```
+- Curl command:
   ```bash
-  curl -X POST http://host.docker.internal:5000/evaluate      -H "Content-Type: application/json"      -d '{"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "depth": 20}'
+  curl http://127.0.0.1:5000/evaluation-result
   ```
 
+Note: After submitting an evaluation request to `/evaluate`, you should poll the `/evaluation-result` endpoint to get the final evaluation. The evaluation value represents the position's score in centipawns (100 centipawns = 1 pawn advantage).
 
 ## Adding New Features
 
