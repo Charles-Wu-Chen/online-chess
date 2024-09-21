@@ -97,7 +97,7 @@ This project is a Flask-based API that uses the Stockfish chess engine to analyz
 - Status Code: 202 (Accepted)
 - Curl command:
   ```bash
-  curl -X POST http://127.0.0.1:5000/evaluate \
+  curl -X POST http://host.docker.internal:5000/evaluate \
        -H "Content-Type: application/json" \
        -d '{"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "depth": 20}'
   ```
@@ -126,6 +126,32 @@ This project is a Flask-based API that uses the Stockfish chess engine to analyz
   ```
 
 Note: After submitting an evaluation request to `/evaluate`, you should poll the `/evaluation-result` endpoint to get the final evaluation. The evaluation value represents the position's score in centipawns (100 centipawns = 1 pawn advantage).
+
+### Calculate Position Sharpness
+
+- Endpoint: `/sharpness`
+- Method: POST
+- Request Body:
+  ```json
+  {
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+  }
+  ```
+- Response:
+  ```json
+  {
+    "sharpness": 0.5
+  }
+  ```
+- Status Code: 200 (OK)
+- Curl command:
+  ```bash
+  curl -X POST http://host.docker.internal:5000/sharpness \
+       -H "Content-Type: application/json" \
+       -d '{"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}'
+  ```
+
+Note: The sharpness value is a float between 0 and 1, where higher values indicate a sharper position. This endpoint uses the Leela Chess Zero engine to calculate the position's sharpness.
 
 ## Adding New Features
 
