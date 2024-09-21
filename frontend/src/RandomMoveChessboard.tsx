@@ -9,6 +9,8 @@ const RandomMoveChessboard: React.FC = () => {
   const [message, setMessage] = useState('');
   const [evaluation, setEvaluation] = useState<number | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [sharpness, setSharpness] = useState<number | null>(null);
+  const [isCalculatingSharpness, setIsCalculatingSharpness] = useState(false);
   const boardContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,8 +77,59 @@ const RandomMoveChessboard: React.FC = () => {
     }, 30000);
   };
 
+  const calculateSharpness = async () => {
+    setIsCalculatingSharpness(true);
+    setSharpness(null);
+    try {
+      const response = await axios.post('http://localhost:5000/sharpness', {
+        fen: game.fen()
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.status === 202) {
+        // Start polling for results
+        pollForSharpness();
+      } else {
+        console.error('Unexpected response:', response);
+        setIsCalculatingSharpness(false);
+      }
+    } catch (error) {
+      console.error('Error calculating sharpness:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', error.response?.data);
+      }
+      setIsCalculatingSharpness(false);
+    }
+  };
+
+  const pollForSharpness = async () => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/sharpness-result');
+        if (response.data.status === 'completed') {
+          setSharpness(response.data.sharpness);
+          setIsCalculatingSharpness(false);
+          clearInterval(pollInterval);
+        }
+      } catch (error) {
+        console.error('Error polling for sharpness:', error);
+        setIsCalculatingSharpness(false);
+        clearInterval(pollInterval);
+      }
+    }, 1000); // Poll every second
+
+    // Stop polling after 30 seconds if no result
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      setIsCalculatingSharpness(false);
+    }, 30000);
+  };
+
   useEffect(() => {
     evaluatePosition();
+    calculateSharpness();
   }, [game]);
 
   function makeRandomMove(currentGame: Chess) {
@@ -187,6 +240,16 @@ const RandomMoveChessboard: React.FC = () => {
         ) : (
           <p>No evaluation available</p>
         )}
+        <h3>Sharpness</h3>
+        {isCalculatingSharpness ? (
+          <p>Calculating sharpness...</p>
+        ) : sharpness !== null ? (
+          <p>Position sharpness: {sharpness.toFixed(4)}</p>
+        ) : (
+          <p>No sharpness data available</p>
+        )}
+        <h3>Current Position (FEN)</h3>
+        <p style={{ wordBreak: 'break-all' }}>{game.fen()}</p>
       </div>
     </div>
   );

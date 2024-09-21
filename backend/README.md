@@ -140,10 +140,10 @@ Note: After submitting an evaluation request to `/evaluate`, you should poll the
 - Response:
   ```json
   {
-    "sharpness": 0.5
+    "message": "Sharpness calculation request received"
   }
   ```
-- Status Code: 200 (OK)
+- Status Code: 202 (Accepted)
 - Curl command:
   ```bash
   curl -X POST http://host.docker.internal:5000/sharpness \
@@ -151,7 +151,30 @@ Note: After submitting an evaluation request to `/evaluate`, you should poll the
        -d '{"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}'
   ```
 
-Note: The sharpness value is a float between 0 and 1, where higher values indicate a sharper position. This endpoint uses the Leela Chess Zero engine to calculate the position's sharpness.
+### Get Sharpness Result
+
+- Endpoint: `/sharpness-result`
+- Method: GET
+- Response:
+  - If sharpness calculation is complete:
+    ```json
+    {
+      "status": "completed",
+      "sharpness": 0.5
+    }
+    ```
+  - If sharpness calculation is still in progress:
+    ```json
+    {
+      "status": "in_progress"
+    }
+    ```
+- Curl command:
+  ```bash
+  curl http://host.docker.internal:5000/sharpness-result
+  ```
+
+Note: After submitting a sharpness calculation request to `/sharpness`, you should poll the `/sharpness-result` endpoint to get the final sharpness value. The sharpness value is a non-negative float, where higher values indicate a sharper position. This endpoint uses the Leela Chess Zero engine to calculate the position's sharpness based on the WDL (Win-Draw-Loss) probabilities.
 
 ## Adding New Features
 
