@@ -9,7 +9,11 @@ class ChessEngine:
 
     def analyse(self, board: chess.Board, limit: chess.engine.Limit):
         return self.engine.analyse(board, limit)
-
+    
+    def analyse_with_multipv(self, board: chess.Board, limit: chess.engine.Limit, multipv: int):
+        return self.engine.analyse(board, limit, multipv=multipv)
+    
+    
     def quit(self):
         self.engine.quit()
 

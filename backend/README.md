@@ -176,6 +176,73 @@ Note: After submitting an evaluation request to `/evaluate`, you should poll the
 
 Note: After submitting a sharpness calculation request to `/sharpness`, you should poll the `/sharpness-result` endpoint to get the final sharpness value. The sharpness value is a non-negative float, where higher values indicate a sharper position. This endpoint uses the Leela Chess Zero engine to calculate the position's sharpness based on the WDL (Win-Draw-Loss) probabilities.
 
+### Get Best Lines
+
+- Endpoint: `/best-lines`
+- Method: POST
+- Request Body:
+  ```json
+  {
+    "current_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "number_of_lines": 3,
+    "depth": 20
+  }
+  ```
+- Response:
+  ```json
+  {
+    "message": "Best lines calculation request received"
+  }
+  ```
+- Status Code: 202 (Accepted)
+- Curl command:
+  ```bash
+  curl -X POST http://host.docker.internal:5000/best-lines \
+       -H "Content-Type: application/json" \
+       -d '{"current_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "number_of_lines": 3, "depth": 20}'
+  ```
+
+### Get Best Lines Result
+
+- Endpoint: `/best-lines-result`
+- Method: GET
+- Response:
+  - If best lines calculation is complete:
+    ```json
+    {
+      "status": "completed",
+      "best_lines": [
+        {
+          "moves": "e4 e5 Nf3 Nc6 Bb5",
+          "score": 35,
+          "sharpness": 0.1234
+        },
+        {
+          "moves": "d4 d5 c4 c6 Nc3",
+          "score": 30,
+          "sharpness": 0.2345
+        },
+        {
+          "moves": "Nf3 d5 g3 Nf6 Bg2",
+          "score": 25,
+          "sharpness": 0.3456
+        }
+      ]
+    }
+    ```
+  - If best lines calculation is still in progress:
+    ```json
+    {
+      "status": "in_progress"
+    }
+    ```
+- Curl command:
+  ```bash
+  curl http://host.docker.internal:5000/best-lines-result
+  ```
+
+Note: The `score` is in centipawns (100 centipawns = 1 pawn advantage). The `sharpness` is a float value between 0 and +infinity, where higher values indicate a sharper position.
+
 ## Adding New Features
 
 To add new Stockfish features:
